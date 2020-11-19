@@ -17,30 +17,35 @@ class EdaRu:
     def get_recipe_dto(self):
         # Build recipe object
         recipe_obj = recipe_dto.RecipeDto(self.get_title(),
-                                          self.src,
-                                          self.get_categories(),
-                                          self.get_image_src(),
                                           self.get_calories_amount(),
-                                          self.get_ingredients(),
                                           self.get_serving_count(),
                                           self.convert_time(
                                               self.get_cooking_time()
                                           ),
+                                          self.get_note(),
+                                          self.src,
+                                          self.get_image_src(),
+                                          self.get_ingredients(),
                                           self.get_steps())
         return recipe_obj
 
-    def get_steps(self):
-        steps = self.html_document.find("ul", {"class": "recipe__steps"}).find_all("span", {"style": "white-space: pre-line"})
-        instruction = []
-        for step in steps:
-            instruction.append(' '.join(step.contents[2].replace('\r', '').replace('\n', '').split()))
-        return instruction
+    def get_note(self):
+        note = self.html_document.find("p", {"class": "recipe_description"})
+        if note is None:
+            return None
+        return note.contents[0]
 
-    def get_categories(self):
-        categories = []
-        for category in self.html_document.find_all("ul", {"class": "breadcrumbs"})[0].find_all("a"):
-            categories.append(category.contents[0])
-        return categories
+    def get_steps(self):
+        steps = self.html_document.find_all("span", {"itemprop": "text"})
+        instruction = []
+        if steps:
+            for step in steps:
+                instruction.append(' '.join(step.contents[0].replace('\r', '').replace('\n', '').split()))
+        else:
+            steps = self.html_document.find_all("span", {"class", "instruction__description"})
+            for step in steps:
+                instruction.append(' '.join(step.contents[3].replace('\r', '').replace('\n', '').split()))
+        return instruction
 
     def get_title(self):
         title = self.html_document.find_all("h1", {"class": "recipe__name g-h1"})[0].contents[0]
