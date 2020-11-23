@@ -30,10 +30,10 @@ class EdaRu:
         return recipe_obj
 
     def get_note(self):
-        note = self.html_document.find("p", {"class": "recipe_description"})
+        note = self.html_document.find("p", {"class": "recipe__description"})
         if note is None:
             return None
-        return note.contents[0]
+        return note.contents[0].strip()
 
     def get_steps(self):
         steps = self.html_document.find_all("span", {"itemprop": "text"})
